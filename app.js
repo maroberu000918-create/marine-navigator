@@ -41,42 +41,57 @@ map.on('click',e=>{
  selectedMarker.bindPopup('海況データ取得地点').openPopup();
  loadMarine(lat,lng);
 });
-let depthLayer = null;
+let depthLayers = [];
 
 async function showDepth() {
-  $('layerNotice').textContent = '海しるの20m水深データを取得中...';
+  $('layerNotice').textContent = '5種類の水深データを取得中...';
+
+  const settings = [
+    { layer: 10, name: '20m', color: '#f0c94a' },
+    { layer: 11, name: '50m', color: '#ff8c42' },
+    { layer: 12, name: '100m', color: '#e85d75' },
+    { layer: 13, name: '150m', color: '#9b72cf' },
+    { layer: 14, name: '200m', color: '#45a6d6' }
+  ];
 
   try {
-    const response = await fetch(
-      'https://tiny-poetry-3853.maroberu000918.workers.dev/depth?layer=10'
-    );
+    depthLayers.forEach(layer => map.removeLayer(layer));
+    depthLayers = [];
 
-    if (!response.ok) throw new Error('HTTP ' + response.status);
+    for (const setting of settings) {
+      const response = await fetch(
+        'https://tiny-poetry-3853.maroberu000918.workers.dev/depth?layer=' + setting.layer
+      );
 
-    const data = await response.json();
-    const lines = [];
+      if (!response.ok) {
+        throw new Error(setting.name + 'の取得失敗 HTTP ' + response.status);
+      }
 
-    (data.features || []).forEach(feature => {
-      (feature.geometry?.paths || []).forEach(path => {
-        const points = path.map(([lng, lat]) => [lat, lng]);
-        if (points.length > 1) {
-          lines.push(
-            L.polyline(points, {
-              color: '#f0c94a',
-              weight: 2,
-              opacity: 0.85
-            })
-          );
-        }
+      const data = await response.json();
+      const lines = [];
+
+      (data.features || []).forEach(feature => {
+        (feature.geometry?.paths || []).forEach(path => {
+          const points = path.map(([lng, lat]) => [lat, lng]);
+
+          if (points.length > 1) {
+            lines.push(
+              L.polyline(points, {
+                color: setting.color,
+                weight: 2,
+                opacity: 0.85
+              })
+            );
+          }
+        });
       });
-    });
 
-    if (depthLayer) map.removeLayer(depthLayer);
-
-    depthLayer = L.layerGroup(lines).addTo(map);
+      const group = L.layerGroup(lines).addTo(map);
+      depthLayers.push(group);
+    }
 
     $('layerNotice').textContent =
-      '海しる20m等深線を表示しました（' + lines.length + '本）';
+      '海しるの20m・50m・100m・150m・200m等深線を表示中です。';
 
   } catch (e) {
     $('layerNotice').textContent = '水深データ取得失敗：' + e.message;
@@ -87,8 +102,8 @@ $('depth').addEventListener('change', () => {
   if ($('depth').checked) {
     showDepth();
   } else {
-    if (depthLayer) map.removeLayer(depthLayer);
-    depthLayer = null;
+    depthLayers.forEach(layer => map.removeLayer(layer));
+    depthLayers = [];
     $('layerNotice').textContent = '水深表示をオフにしました。';
   }
 });
