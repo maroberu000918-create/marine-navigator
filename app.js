@@ -588,11 +588,21 @@ document.body.appendChild(moonPanel);
           ${currentText}
         </div>
         <div style="margin-top:10px">潮位の変化（1日分）</div>
-        <svg viewBox="0 0 ${width} ${height}"
+                <svg viewBox="0 0 ${width} 175"
           style="width:100%;background:#183d5c;border-radius:7px;margin-top:5px">
+          ${[0,6,12,18,24].map(hour => {
+            const x = hour / 24 * width;
+            return `
+              <line x1="${x}" y1="5" x2="${x}" y2="145"
+                stroke="#7890a5" stroke-width="0.7" stroke-dasharray="3 3"/>
+              <text x="${x}" y="163" fill="white"
+                font-size="11" text-anchor="middle">${String(hour).padStart(2,"0")}:00</text>
+            `;
+          }).join("")}
           <polyline points="${points}"
             fill="none" stroke="#55d6ff" stroke-width="2"/>
         </svg>
+       
         <div style="font-size:12px;margin-top:5px">
           最低値：約 ${minValue}<br>
           最高値：約 ${maxValue}
