@@ -600,7 +600,15 @@ document.body.appendChild(moonPanel);
             `;
           }).join("")}
                     <polyline points="${points}"
-            fill="none" stroke="#55d6ff" stroke-width="2"/>
+                      fill="none" stroke="#55d6ff" stroke-width="2"/>
+                    <line
+                      x1="${new Date().getHours() / 24 * width}"
+                      y1="5"
+                      x2="${new Date().getHours() / 24 * width}"
+                      y2="145"
+                      stroke="#ffeb3b"
+                      stroke-width="2"
+                      stroke-dasharray="4 3"/>                   
           ${turningPoints.map(p => {
             const parts = p.time.split(":").map(Number);
             const minutes = parts[0] * 60 + parts[1];
