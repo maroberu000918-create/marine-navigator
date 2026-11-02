@@ -41,3 +41,54 @@ map.on('click',e=>{
  selectedMarker.bindPopup('海況データ取得地点').openPopup();
  loadMarine(lat,lng);
 });
+let depthLayer = null;
+
+async function showDepth() {
+  $('layerNotice').textContent = '海しるの20m水深データを取得中...';
+
+  try {
+    const response = await fetch(
+      'https://tiny-poetry-3853.maroberu000918.workers.dev/depth?layer=10'
+    );
+
+    if (!response.ok) throw new Error('HTTP ' + response.status);
+
+    const data = await response.json();
+    const lines = [];
+
+    (data.features || []).forEach(feature => {
+      (feature.geometry?.paths || []).forEach(path => {
+        const points = path.map(([lng, lat]) => [lat, lng]);
+        if (points.length > 1) {
+          lines.push(
+            L.polyline(points, {
+              color: '#f0c94a',
+              weight: 2,
+              opacity: 0.85
+            })
+          );
+        }
+      });
+    });
+
+    if (depthLayer) map.removeLayer(depthLayer);
+
+    depthLayer = L.layerGroup(lines).addTo(map);
+
+    $('layerNotice').textContent =
+      '海しる20m等深線を表示しました（' + lines.length + '本）';
+
+  } catch (e) {
+    $('layerNotice').textContent = '水深データ取得失敗：' + e.message;
+  }
+}
+
+$('depth').addEventListener('change', () => {
+  if ($('depth').checked) {
+    showDepth();
+  } else {
+    if (depthLayer) map.removeLayer(depthLayer);
+    depthLayer = null;
+    $('layerNotice').textContent = '水深表示をオフにしました。';
+  }
+});
