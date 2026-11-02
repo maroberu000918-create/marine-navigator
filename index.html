@@ -14,15 +14,23 @@
 <div class="status"><span id="gpsdot" class="dot"></span><span id="gpsstatus">GPS未取得</span><span id="coords">位置情報待機中</span></div>
 <div class="actions"><button id="start">航跡記録開始</button><button id="stop" class="secondary" disabled>記録停止</button><button id="export" class="secondary">GPX出力</button></div>
 <div class="stats"><div><small>記録点数</small><b id="points">0</b></div><div><small>航走距離</small><b id="distance">0.00 km</b></div><div><small>GPS精度</small><b id="accuracy">--</b></div></div>
+<h2>海況データ（地図をタップして地点を選択）</h2>
+<div class="stats marine-stats">
+<div><small>風向・風速</small><b id="windValue">未取得</b></div>
+<div><small>潮流</small><b id="currentValue">未取得</b></div>
+<div><small>波高</small><b id="waveValue">未取得</b></div>
+</div>
+<p id="marineStatus" class="notice">地図上の海上地点をタップすると、その地点の予測データを取得します。</p>
 <h2>海況レイヤー</h2><div class="layers">
 <label><input type="checkbox" id="wind"> 風向・風速（矢印）</label>
 <label><input type="checkbox" id="depth"> 水深（m）・等深線</label>
 <label><input type="checkbox" id="current"> 潮流（矢印）</label>
-</div><p class="notice" id="layerNotice">海況データは未接続です。チェックを入れても実測値・予測値は表示されません。</p>
+</div><p class="notice" id="layerNotice">チェック欄は表示項目の選択用です。取得データは選択地点の予測値として表示します。</p>
+<p class="notice">水深・等深線は別途、海しる等の公式データ接続が必要です。現在は未接続です。</p>
 <h2>潮汐情報</h2><p>潮汐表は気象庁の公式ページで確認してください。港・観測地点を選んで最新の満潮・干潮時刻を確認できます。</p>
 <a class="link" href="https://www.data.jma.go.jp/kaiyou/db/tide/suisan/index.php" target="_blank" rel="noopener">気象庁 潮位表を開く ↗</a>
 <h2>風・海上警報</h2><a class="link" href="https://www.windy.com/" target="_blank" rel="noopener">Windyで風向・風速を確認 ↗</a><a class="link" href="https://www6.kaiho.mlit.go.jp/" target="_blank" rel="noopener">海上保安庁 海の安全情報 ↗</a>
-<p class="warning">⚠ この試作版は航海用電子海図・航海計器ではありません。水深・潮流・風のデータ接続も未完了です。航行判断には使用せず、必ず公式海図・航行警報・最新の気象海象情報を確認してください。</p>
+<p class="warning">⚠ この試作版は航海用電子海図・航海計器ではありません。風・潮流・波は数値予測で、沿岸や狭い水道では誤差があります。水深は未接続です。航行判断には使用せず、必ず公式海図・航行警報・最新の気象海象情報を確認してください。</p>
 </section></main>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><script src="app.js"></script>
 </body></html>

@@ -10,3 +10,34 @@ $('stop').onclick=()=>{if(watchId!==null)navigator.geolocation.clearWatch(watchI
 $('export').onclick=()=>{if(!track.length){alert('航跡がありません。先に記録を開始してください。');return}const pts=track.map(p=>`<trkpt lat="${p.lat}" lon="${p.lng}"><time>${p.time}</time></trkpt>`).join('');const xml=`<?xml version="1.0"?><gpx version="1.1" creator="MarineNavigatorJP"><trk><name>Marine Navigator Track</name><trkseg>${pts}</trkseg></trk></gpx>`;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([xml],{type:'application/gpx+xml'}));a.download='marine-track.gpx';a.click();URL.revokeObjectURL(a.href)};
 ['wind','depth','current'].forEach(id=>$(id).onchange=()=>{$('layerNotice').textContent='選択中：'+(['wind','depth','current'].filter(k=>$(k).checked).map(k=>({wind:'風向・風速',depth:'水深',current:'潮流'}[k])).join('・')||'なし')+'。データ配信元との接続は未実装のため、地図上に実データは描画されません。';});
 if('serviceWorker'in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('./sw.js').catch(()=>{});
+
+
+// 選択地点の予測海況（Open-Meteo公開API）
+let selectedMarker=null;
+const deg=d=>{if(d===null||d===undefined||Number.isNaN(Number(d)))return '--';const dirs=['北','北北東','北東','東北東','東','東南東','南東','南南東','南','南南西','南西','西南西','西','西北西','北西','北北西'];return dirs[Math.round(Number(d)/22.5)%16]+' ('+Math.round(Number(d))+'°)';};
+async function loadMarine(lat,lng){
+ const status=$('marineStatus');status.textContent='選択地点の予測データを取得しています…';
+ $('windValue').textContent='取得中…';$('currentValue').textContent='取得中…';$('waveValue').textContent='取得中…';
+ try{
+  const wurl=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=wind_speed_10m,wind_direction_10m&wind_speed_unit=ms&timezone=Asia%2FTokyo`;
+  const murl=`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lng}&current=ocean_current_velocity,ocean_current_direction,wave_height,wave_direction&length_unit=metric&timezone=Asia%2FTokyo`;
+  const [wr,mr]=await Promise.all([fetch(wurl),fetch(murl)]);
+  if(!wr.ok||!mr.ok)throw new Error('データ配信元から応答がありません');
+  const [wd,md]=await Promise.all([wr.json(),mr.json()]);
+  const wc=wd.current||{},mc=md.current||{};
+  $('windValue').textContent=(wc.wind_speed_10m!=null?`${deg(wc.wind_direction_10m)}・${Number(wc.wind_speed_10m).toFixed(1)} m/s`:'データなし');
+  $('currentValue').textContent=(mc.ocean_current_velocity!=null?`${deg(mc.ocean_current_direction)}・${Number(mc.ocean_current_velocity).toFixed(2)} km/h`:'データなし');
+  $('waveValue').textContent=(mc.wave_height!=null?`${Number(mc.wave_height).toFixed(2)} m・${deg(mc.wave_direction)}`:'データなし');
+  status.textContent=`選択地点 ${lat.toFixed(4)}, ${lng.toFixed(4)} ／ 予測更新時刻：${wc.time||mc.time||'不明'}（日本時間）`;
+ }catch(e){
+  status.textContent='取得できませんでした：'+e.message+'。海上地点を選び直すか、時間をおいて再試行してください。';
+  $('windValue').textContent='取得失敗';$('currentValue').textContent='取得失敗';$('waveValue').textContent='取得失敗';
+ }
+}
+map.on('click',e=>{
+ const {lat,lng}=e.latlng;
+ if(selectedMarker)selectedMarker.setLatLng(e.latlng);
+ else selectedMarker=L.circleMarker(e.latlng,{radius:8,color:'#ff7a00',fillColor:'#ffd166',fillOpacity:.9}).addTo(map);
+ selectedMarker.bindPopup('海況データ取得地点').openPopup();
+ loadMarine(lat,lng);
+});
