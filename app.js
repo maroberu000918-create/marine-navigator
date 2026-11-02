@@ -267,3 +267,39 @@ windyButton.onclick = () => {
 windyClose.onclick = () => {
   windyPanel.style.display = 'none';
 };
+
+const windyLayerSelect = document.createElement('select');
+
+windyLayerSelect.style.cssText =
+  'padding:7px;border:0;border-radius:6px;' +
+  'font-size:14px;margin:0 8px;';
+
+const windyOptions = [
+  { value: 'wind', label: '風向・風速' },
+  { value: 'waves', label: '波高・波向' },
+  { value: 'rain', label: '雨・雷' },
+  { value: 'temp', label: '気温' },
+  { value: 'pressure', label: '気圧' }
+];
+
+windyOptions.forEach(item => {
+  const option = document.createElement('option');
+  option.value = item.value;
+  option.textContent = item.label;
+  windyLayerSelect.appendChild(option);
+});
+
+windyHeader.insertBefore(windyLayerSelect, windyClose);
+
+windyLayerSelect.onchange = () => {
+  const overlay = windyLayerSelect.value;
+
+  windyFrame.src =
+    'https://embed.windy.com/embed2.html?' +
+    'lat=33.84&lon=132.77&zoom=7&level=surface' +
+    '&overlay=' + encodeURIComponent(overlay) +
+    '&menu=&message=&marker=&calendar=now' +
+    '&pressure=&type=map&location=coordinates' +
+    '&detail=&detailLat=33.84&detailLon=132.77' +
+    '&metricWind=default&metricTemp=default&radarRange=-1';
+};
