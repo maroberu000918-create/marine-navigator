@@ -303,3 +303,54 @@ windyLayerSelect.onchange = () => {
     '&detail=&detailLat=33.84&detailLon=132.77' +
     '&metricWind=default&metricTemp=default&radarRange=-1';
 };
+// 海域選択機能
+const marineAreas = [
+  { name: '瀬戸内海', lat: 34.0, lng: 133.3, zoom: 8 },
+  { name: '紀伊水道', lat: 33.8, lng: 134.9, zoom: 8 },
+  { name: '豊後水道', lat: 33.2, lng: 132.0, zoom: 8 },
+  { name: '和歌山沖', lat: 33.5, lng: 135.5, zoom: 7 },
+  { name: '高知沖', lat: 32.8, lng: 133.5, zoom: 7 }
+];
+
+const areaPanel = document.createElement('div');
+
+areaPanel.style.cssText =
+  'position:fixed;bottom:12px;left:12px;z-index:8999;' +
+  'display:flex;flex-wrap:wrap;gap:5px;max-width:95%;' +
+  'padding:7px;background:white;border-radius:9px;' +
+  'box-shadow:0 2px 8px #555;';
+
+marineAreas.forEach(area => {
+  const button = document.createElement('button');
+  button.textContent = area.name;
+
+  button.style.cssText =
+    'padding:9px 11px;border:0;border-radius:6px;' +
+    'background:#087bd1;color:white;font-size:13px;' +
+    'font-weight:bold;';
+
+  button.onclick = () => {
+    map.setView([area.lat, area.lng], area.zoom);
+
+    if (windyFrame) {
+      const overlay = windyLayerSelect.value;
+
+      windyFrame.src =
+        'https://embed.windy.com/embed2.html?' +
+        'lat=' + area.lat +
+        '&lon=' + area.lng +
+        '&zoom=' + area.zoom +
+        '&level=surface&overlay=' + encodeURIComponent(overlay) +
+        '&menu=&message=&marker=&calendar=now' +
+        '&pressure=&type=map&location=coordinates' +
+        '&detail=&detailLat=' + area.lat +
+        '&detailLon=' + area.lng +
+        '&metricWind=default&metricTemp=default&radarRange=-1';
+    }
+  };
+
+  areaPanel.appendChild(button);
+});
+
+document.body.appendChild(areaPanel);
+
