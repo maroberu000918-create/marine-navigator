@@ -422,3 +422,200 @@ function updateMoonInfo() {
 
 updateMoonInfo();
 document.body.appendChild(moonPanel);
+// ===== 潮位予測パネル（海しるAPI）=====
+(function () {
+  const tideStations = {
+    "松山（瀬戸内海）": "3813",
+    "小松島（紀伊水道）": "3604",
+    "宇和島（豊後水道）": "3821",
+    "和歌山（和歌山沖）": "3011",
+    "高知（高知沖）": "3904"
+  };
+
+  const tideButton = document.createElement("button");
+  tideButton.textContent = "潮位予測";
+  tideButton.style.cssText =
+    "position:fixed;left:12px;bottom:12px;z-index:10000;" +
+    "padding:12px 16px;background:#087b65;color:white;" +
+    "border:0;border-radius:8px;font-size:15px;font-weight:bold;";
+  document.body.appendChild(tideButton);
+
+  const tidePanel = document.createElement("div");
+  tidePanel.style.cssText =
+    "display:none;position:fixed;left:12px;bottom:62px;z-index:10000;" +
+    "width:min(360px,calc(100vw - 24px));max-height:65vh;overflow:auto;" +
+    "box-sizing:border-box;background:#102b46;color:white;padding:14px;" +
+    "border-radius:12px;box-shadow:0 2px 10px #333;font-size:14px;";
+  tidePanel.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <b style="font-size:17px">🌊 潮位予測</b>
+      <button id="tideClose" style="padding:6px 10px">閉じる</button>
+    </div>
+    <div style="margin-top:12px">地点</div>
+    <select id="tideStation" style="width:100%;padding:9px;margin-top:5px">
+      ${Object.keys(tideStations).map(name =>
+        `<option value="${tideStations[name]}">${name}</option>`
+      ).join("")}
+    </select>
+    <div style="margin-top:10px">日付</div>
+    <input id="tideDate" type="date"
+      style="width:100%;padding:9px;margin-top:5px;box-sizing:border-box">
+    <button id="tideLoad"
+      style="width:100%;padding:10px;margin-top:10px;background:#087b65;color:white;border:0;border-radius:7px;font-weight:bold">
+      潮位データを取得
+    </button>
+    <div id="tideStatus" style="margin-top:10px">日付と地点を選んでください。</div>
+    <div id="tideResult" style="margin-top:10px"></div>
+    <div style="font-size:11px;color:#cbd8e5;margin-top:12px">
+      出典：海上保安庁 海しるAPI・潮汐推算<br>
+      表示値は予測値です。航海には公式潮汐表等も確認してください。
+    </div>
+  `;
+  document.body.appendChild(tidePanel);
+
+  const tideDateInput = tidePanel.querySelector("#tideDate");
+  const tideStationInput = tidePanel.querySelector("#tideStation");
+  const tideStatus = tidePanel.querySelector("#tideStatus");
+  const tideResult = tidePanel.querySelector("#tideResult");
+
+  function tideLocalDate() {
+    const d = new Date();
+    return d.getFullYear() + "-" +
+      String(d.getMonth() + 1).padStart(2, "0") + "-" +
+      String(d.getDate()).padStart(2, "0");
+  }
+
+  tideDateInput.value = tideLocalDate();
+
+  tideButton.onclick = () => {
+    tidePanel.style.display =
+      tidePanel.style.display === "none" ? "block" : "none";
+  };
+
+  tidePanel.querySelector("#tideClose").onclick = () => {
+    tidePanel.style.display = "none";
+  };
+
+  tidePanel.querySelector("#tideLoad").onclick = async () => {
+    const station = tideStationInput.value;
+    const date = tideDateInput.value.replace(/-/g, "");
+
+    if (!date) {
+      tideStatus.textContent = "日付を選択してください。";
+      return;
+    }
+
+    tideStatus.textContent = "潮位データを取得しています...";
+    tideResult.innerHTML = "";
+
+    try {
+      const response = await fetch(
+        "https://tiny-poetry-3853.maroberu000918.workers.dev/tide" +
+        "?stationCode=" + encodeURIComponent(station) +
+        "&date=" + encodeURIComponent(date)
+      );
+
+      if (!response.ok) {
+        throw new Error("データ取得エラー：" + response.status);
+      }
+
+      const data = await response.json();
+
+      if (!Array.isArray(data.tide) || data.tide.length === 0) {
+        throw new Error("潮位データがありません。");
+      }
+
+      const values = data.tide.map(Number);
+      const start = new Date(data.time);
+      const minValue = Math.min(...values);
+      const maxValue = Math.max(...values);
+      const range = Math.max(1, maxValue - minValue);
+
+      function tideTime(index) {
+        const d = new Date(start.getTime() + index * data.interval * 1000);
+        return String(d.getHours()).padStart(2, "0") + ":" +
+          String(d.getMinutes()).padStart(2, "0");
+      }
+
+      const turningPoints = [];
+      for (let i = 1; i < values.length - 1; i++) {
+        if (values[i] >= values[i - 1] && values[i] > values[i + 1]) {
+          turningPoints.push({
+            type: "満潮ごろ",
+            time: tideTime(i),
+            value: values[i]
+          });
+        } else if (values[i] <= values[i - 1] && values[i] < values[i + 1]) {
+          turningPoints.push({
+            type: "干潮ごろ",
+            time: tideTime(i),
+            value: values[i]
+          });
+        }
+      }
+
+      const width = 320;
+      const height = 140;
+      const points = values.map((v, i) => {
+        const x = i / Math.max(1, values.length - 1) * width;
+        const y = height - 10 -
+          ((v - minValue) / range) * (height - 20);
+        return x.toFixed(1) + "," + y.toFixed(1);
+      }).join(" ");
+
+      const now = new Date();
+      const selectedDate = tideDateInput.value;
+      const isToday = selectedDate === tideLocalDate();
+      let currentText = "選択日の現在潮位：対象外の日付です。";
+
+      if (isToday) {
+        const minute = Math.floor(
+          (now.getTime() - start.getTime()) / 60000
+        );
+        if (minute >= 0 && minute < values.length) {
+          currentText =
+            "現在時刻の推算値：約 " + values[minute];
+        } else {
+          currentText = "現在時刻の値はデータ範囲外です。";
+        }
+      }
+
+      tideResult.innerHTML = `
+        <div style="font-weight:bold;margin-bottom:7px">
+          ${tideStationInput.options[tideStationInput.selectedIndex].text}
+        </div>
+        <div style="background:#183d5c;padding:9px;border-radius:7px">
+          ${currentText}
+        </div>
+        <div style="margin-top:10px">潮位の変化（1日分）</div>
+        <svg viewBox="0 0 ${width} ${height}"
+          style="width:100%;background:#183d5c;border-radius:7px;margin-top:5px">
+          <polyline points="${points}"
+            fill="none" stroke="#55d6ff" stroke-width="2"/>
+        </svg>
+        <div style="font-size:12px;margin-top:5px">
+          最低値：約 ${minValue}<br>
+          最高値：約 ${maxValue}
+        </div>
+        <div style="font-weight:bold;margin-top:12px">満潮・干潮の目安</div>
+        ${
+          turningPoints.length
+            ? turningPoints.map(p =>
+                `<div style="padding:5px 0;border-bottom:1px solid #456">
+                  ${p.time}　${p.type}　${p.value}
+                </div>`
+              ).join("")
+            : "<div>この日の変化点を検出できませんでした。</div>"
+        }
+        <div style="font-size:11px;color:#cbd8e5;margin-top:8px">
+          ※ 数値の単位は公式仕様を確認中のため、数値のみ表示しています。
+        </div>
+      `;
+
+      tideStatus.textContent = "潮位予測データを取得しました。";
+
+    } catch (error) {
+      tideStatus.textContent = "取得できませんでした：" + error.message;
+    }
+  };
+})();
