@@ -599,9 +599,27 @@ document.body.appendChild(moonPanel);
                 font-size="11" text-anchor="middle">${String(hour).padStart(2,"0")}:00</text>
             `;
           }).join("")}
-          <polyline points="${points}"
+                    <polyline points="${points}"
             fill="none" stroke="#55d6ff" stroke-width="2"/>
-        </svg>
+          ${turningPoints.map(p => {
+            const parts = p.time.split(":").map(Number);
+            const minutes = parts[0] * 60 + parts[1];
+            const x = minutes / 1440 * width;
+            const y = height - 10 -
+              ((p.value - minValue) / range) * (height - 20);
+            const isHigh = p.type === "満潮ごろ";
+            const label = (isHigh ? "満潮 " : "干潮 ") +
+              p.time + " " + p.value;
+            return `
+              <circle cx="${x}" cy="${y}" r="4"
+                fill="${isHigh ? '#ff5252' : '#42bfff'}"
+                stroke="white" stroke-width="1"/>
+              <text x="${x}" y="${Math.max(10, y - 9)}"
+                fill="${isHigh ? '#ff9999' : '#8bd7ff'}"
+                font-size="9" text-anchor="middle">${label}</text>
+            `;
+          }).join("")}
+        </svg>ｖ
        
         <div style="font-size:12px;margin-top:5px">
           最低値：約 ${minValue}<br>
