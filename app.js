@@ -619,7 +619,7 @@ document.body.appendChild(moonPanel);
                 font-size="9" text-anchor="middle">${label}</text>
             `;
           }).join("")}
-        </svg>ｖ
+        </svg>
        
         <div style="font-size:12px;margin-top:5px">
           最低値：約 ${minValue}<br>
