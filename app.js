@@ -619,3 +619,11 @@ document.body.appendChild(moonPanel);
     }
   };
 })();
+// 潮位予測ボタンの位置を変更
+document.querySelectorAll("button").forEach(function(button) {
+  if (button.textContent.trim() === "潮位予測") {
+    button.style.left = "auto";
+    button.style.right = "12px";
+    button.style.bottom = "12px";
+  }
+});
