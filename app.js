@@ -610,13 +610,13 @@ document.body.appendChild(moonPanel);
                       stroke-width="2"
                       stroke-dasharray="4 3"/>                   
                     <text
-                      x="${new Date().getHours() / 24 * width}"
+                      x="${width / 2}"
                       y="15"
                       fill="#ffeb3b"
                       font-size="11"
                       text-anchor="middle">
                       現在 ${String(new Date().getHours()).padStart(2,"0")}:00
-                    </text>          
+                    </text>                   
           ${turningPoints.map(p => {
             const parts = p.time.split(":").map(Number);
             const minutes = parts[0] * 60 + parts[1];
