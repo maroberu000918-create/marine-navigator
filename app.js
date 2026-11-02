@@ -372,3 +372,53 @@ tideButton.onclick = () => {
 };
 
 document.body.appendChild(tideButton);
+// 月齢・月の満ち欠け表示
+const moonPanel = document.createElement('div');
+
+moonPanel.style.cssText =
+  'position:fixed;right:12px;top:112px;z-index:9000;' +
+  'background:#102b46;color:white;padding:12px 15px;' +
+  'border-radius:10px;font-size:14px;line-height:1.8;' +
+  'box-shadow:0 2px 8px #555;min-width:190px;';
+
+function updateMoonInfo() {
+  const now = new Date();
+  const knownNewMoon = new Date('2000-01-06T18:14:00Z');
+  const cycle = 29.530588853;
+  const days = (now.getTime() - knownNewMoon.getTime()) / 86400000;
+  const age = ((days % cycle) + cycle) % cycle;
+  const illumination =
+    (1 - Math.cos(2 * Math.PI * age / cycle)) / 2 * 100;
+
+  let phase = '満ちていく月';
+  if (age < 1.85 || age >= 27.68) phase = '新月ごろ';
+  else if (age < 5.54) phase = '三日月ごろ';
+  else if (age < 9.23) phase = '上弦ごろ';
+  else if (age < 12.92) phase = '十三夜ごろ';
+  else if (age < 16.62) phase = '満月ごろ';
+  else if (age < 20.31) phase = '欠けていく月';
+  else if (age < 23.99) phase = '下弦ごろ';
+  else phase = '有明月ごろ';
+
+  const nextFull = (14.765294 - age + cycle) % cycle;
+  const nextNew = (cycle - age) % cycle;
+
+  function dateAfter(value) {
+    const d = new Date(now.getTime() + value * 86400000);
+    return d.toLocaleDateString('ja-JP', {
+      month: 'numeric',
+      day: 'numeric'
+    });
+  }
+
+  moonPanel.innerHTML =
+    '<b>🌙 月齢情報</b><br>' +
+    '月齢：約 ' + age.toFixed(1) + ' 日<br>' +
+    '月の状態：' + phase + '<br>' +
+    '月の明るさ：約 ' + illumination.toFixed(0) + '%<br>' +
+    '次の満月：約 ' + dateAfter(nextFull) + '<br>' +
+    '次の新月：約 ' + dateAfter(nextNew);
+}
+
+updateMoonInfo();
+document.body.appendChild(moonPanel);
