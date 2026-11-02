@@ -208,3 +208,62 @@ map.on('moveend', () => {
     windReloadTimer = setTimeout(showWind, 700);
   }
 });
+
+// Windyをマリンナビ内に表示する機能
+const windyButton = document.createElement('button');
+windyButton.textContent = 'Windy 天気図';
+windyButton.style.cssText =
+  'position:fixed;right:12px;top:12px;z-index:9000;' +
+  'padding:12px 16px;background:#087bd1;color:white;' +
+  'border:0;border-radius:8px;font-size:15px;font-weight:bold;' +
+  'box-shadow:0 2px 6px #555;';
+
+document.body.appendChild(windyButton);
+
+const windyPanel = document.createElement('div');
+windyPanel.style.cssText =
+  'display:none;position:fixed;inset:0;z-index:10000;' +
+  'background:white;';
+
+const windyHeader = document.createElement('div');
+windyHeader.style.cssText =
+  'height:48px;background:#087bd1;color:white;' +
+  'display:flex;align-items:center;justify-content:space-between;' +
+  'padding:0 12px;font-weight:bold;';
+
+const windyTitle = document.createElement('span');
+windyTitle.textContent = 'Windy 気象情報';
+
+const windyClose = document.createElement('button');
+windyClose.textContent = '閉じる ×';
+windyClose.style.cssText =
+  'padding:8px 14px;border:0;border-radius:6px;' +
+  'background:white;color:#087bd1;font-weight:bold;';
+
+windyHeader.appendChild(windyTitle);
+windyHeader.appendChild(windyClose);
+
+const windyFrame = document.createElement('iframe');
+windyFrame.title = 'Windy天気図';
+windyFrame.src =
+  'https://embed.windy.com/embed2.html?' +
+  'lat=33.84&lon=132.77&zoom=7&level=surface' +
+  '&overlay=wind&menu=&message=&marker=' +
+  '&calendar=now&pressure=&type=map&location=coordinates' +
+  '&detail=&detailLat=33.84&detailLon=132.77' +
+  '&metricWind=default&metricTemp=default&radarRange=-1';
+
+windyFrame.style.cssText =
+  'width:100%;height:calc(100% - 48px);border:0;';
+
+windyPanel.appendChild(windyHeader);
+windyPanel.appendChild(windyFrame);
+document.body.appendChild(windyPanel);
+
+windyButton.onclick = () => {
+  windyPanel.style.display = 'block';
+};
+
+windyClose.onclick = () => {
+  windyPanel.style.display = 'none';
+};
