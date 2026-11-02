@@ -614,9 +614,7 @@ document.body.appendChild(moonPanel);
               <circle cx="${x}" cy="${y}" r="4"
                 fill="${isHigh ? '#ff5252' : '#42bfff'}"
                 stroke="white" stroke-width="1"/>
-              <text x="${x}" y="${Math.max(10, y - 9)}"
-                fill="${isHigh ? '#ff9999' : '#8bd7ff'}"
-                font-size="9" text-anchor="middle">${label}</text>
+              
             `;
           }).join("")}
         </svg>
