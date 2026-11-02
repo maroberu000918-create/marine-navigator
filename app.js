@@ -107,3 +107,104 @@ $('depth').addEventListener('change', () => {
     $('layerNotice').textContent = '水深表示をオフにしました。';
   }
 });
+// 風向・風速表示機能
+let windLayer = null;
+let windReloadTimer = null;
+
+async function showWind() {
+  $('layerNotice').textContent = '風向・風速データを取得中...';
+
+  try {
+    if (windLayer) map.removeLayer(windLayer);
+
+    windLayer = L.layerGroup().addTo(map);
+
+    const bounds = map.getBounds();
+    const south = bounds.getSouth();
+    const north = bounds.getNorth();
+    const west = bounds.getWest();
+    const east = bounds.getEast();
+
+    const locations = [];
+
+    for (let y = 1; y <= 3; y++) {
+      for (let x = 1; x <= 3; x++) {
+        locations.push({
+          lat: south + (north - south) * y / 4,
+          lng: west + (east - west) * x / 4
+        });
+      }
+    }
+
+    let success = 0;
+
+    await Promise.all(locations.map(async point => {
+      try {
+        const url =
+          'https://api.open-meteo.com/v1/forecast' +
+          '?latitude=' + point.lat +
+          '&longitude=' + point.lng +
+          '&current=wind_speed_10m,wind_direction_10m' +
+          '&wind_speed_unit=ms&timezone=auto';
+
+        const response = await fetch(url);
+        if (!response.ok) return;
+
+        const data = await response.json();
+        if (!data.current) return;
+
+        const speed = data.current.wind_speed_10m;
+        const direction = data.current.wind_direction_10m;
+
+        if (speed == null || direction == null) return;
+
+        const arrow = L.divIcon({
+          className: '',
+          html:
+            '<div style="font-size:30px;color:#087bd1;' +
+            'text-shadow:0 1px 3px white;' +
+            'transform:rotate(' + ((direction + 180) % 360) + 'deg);">' +
+            '↑</div>',
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
+        });
+
+        L.marker([point.lat, point.lng], {
+          icon: arrow
+        }).bindTooltip(
+          '風速 ' + speed.toFixed(1) +
+          ' m/s ・ 風向 ' + Math.round(direction) + '°'
+        ).addTo(windLayer);
+
+        success++;
+      } catch (e) {
+        // 個別地点の取得失敗はスキップ
+      }
+    }));
+
+    $('layerNotice').textContent =
+      '風向・風速を表示中（' + success +
+      '地点）。気象モデルによる予報データです。提供：Open-Meteo';
+
+  } catch (e) {
+    $('layerNotice').textContent =
+      '風データ取得失敗：' + e.message;
+  }
+}
+
+$('wind').addEventListener('change', () => {
+  if ($('wind').checked) {
+    showWind();
+  } else {
+    if (windLayer) map.removeLayer(windLayer);
+    windLayer = null;
+    $('layerNotice').textContent = '風向・風速表示をオフにしました。';
+  }
+});
+
+map.on('moveend', () => {
+  if ($('wind').checked) {
+    clearTimeout(windReloadTimer);
+    windReloadTimer = setTimeout(showWind, 700);
+  }
+});
