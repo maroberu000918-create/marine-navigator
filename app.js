@@ -689,10 +689,3 @@ document.querySelectorAll("div").forEach(panel => {
     panel.remove();
   }
 });
-// 地図上の潮汐ボタンだけを非表示
-document.querySelectorAll("button").forEach(button => {
-  const label = button.textContent.trim();
-  if (label === "潮汐" || label === "潮位予測") {
-    button.remove();
-  }
-});
