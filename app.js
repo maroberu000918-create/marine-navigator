@@ -497,7 +497,14 @@ document.body.appendChild(moonPanel);
         "?stationCode=" + encodeURIComponent(station) +
         "&date=" + encodeURIComponent(date)
       );
+  // 日付や地点を変更したら自動取得
+  tideDateInput.addEventListener("change", () => {
+    tidePanel.querySelector("#tideLoad").click();
+  });
 
+  tideStationInput.addEventListener("change", () => {
+    tidePanel.querySelector("#tideLoad").click();
+  });
       if (!response.ok) {
         throw new Error("データ取得エラー：" + response.status);
       }
