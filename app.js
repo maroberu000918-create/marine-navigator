@@ -657,21 +657,33 @@ document.body.appendChild(moonPanel);
         </div>
         <div style="font-weight:bold;margin-top:12px">満潮・干潮の目安</div>
         ${
-         turningPoints.length
-            ? turningPoints.map(p => {
-                const isHigh = p.type === "満潮ごろ";
-                return `
-                  <div style="padding:8px;margin-top:5px;
-                    border-radius:6px;
-                    background:${isHigh ? '#512d35' : '#173e58'};
-                    color:${isHigh ? '#ff7777' : '#55c8ff'};
-                    font-weight:bold">
-                    ${isHigh ? '🔴 満潮' : '🔵 干潮'}
-                   　${p.time}　約 ${p.value}
-                  </div>
-                `;
-              }).join("")
-            : "<div>この日の変化点を検出できませんでした。</div>"
+                turningPoints.length
+          ? turningPoints.map(p => {
+              const isHigh = p.type === "満潮ごろ";
+              const color = isHigh ? "#ff5252" : "#42bfff";
+              return `
+                <div style="
+                  margin-top:8px;
+                  padding:10px;
+                  background:#102b46;
+                  border-left:5px solid ${color};
+                  border-radius:5px;
+                  color:white;
+                  font-size:15px;
+                  font-weight:bold;">
+                  <span style="color:${color}">
+                    ${isHigh ? "● 満潮" : "● 干潮"}
+                  </span>
+                  <span style="margin-left:12px">
+                    ${p.time}
+                  </span>
+                  <span style="margin-left:10px">
+                    約 ${p.value}
+                  </span>
+                </div>
+              `;
+            }).join("")
+          : "<div>この日の変化点を検出できませんでした。</div>"
         }
         <div style="font-size:11px;color:#cbd8e5;margin-top:8px">
           ※ 数値の単位は公式仕様を確認中のため、数値のみ表示しています。
