@@ -213,10 +213,11 @@ map.on('moveend', () => {
 const windyButton = document.createElement('button');
 windyButton.textContent = 'Windy 天気図';
 windyButton.style.cssText =
-  'position:fixed;right:12px;top:12px;z-index:9000;' +
+  'position:fixed;right:150px;top:12px;z-index:9000;' +
   'padding:12px 16px;background:#087bd1;color:white;' +
   'border:0;border-radius:8px;font-size:15px;font-weight:bold;' +
   'box-shadow:0 2px 6px #555;';
+
 
 document.body.appendChild(windyButton);
 
