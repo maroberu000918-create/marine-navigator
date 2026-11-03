@@ -633,7 +633,7 @@ document.body.appendChild(moonPanel);
               <circle cx="${x}" cy="${y}" r="4"
                 fill="${isHigh ? '#ff5252' : '#42bfff'}"
                 stroke="white" stroke-width="1"/>
-              <text x="${x}" y="${isHigh ? Math.max(12, y + 14) : y + 16}"
+              <text x="${x}" y="${isHigh ? Math.max(12, y + 14) : Math.min(height - 12, y + 16)}"
                 fill="${isHigh ? '#ff7777' : '#65cfff'}"
                 font-size="10"
                 text-anchor="middle"
