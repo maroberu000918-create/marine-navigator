@@ -662,15 +662,15 @@ document.body.appendChild(moonPanel);
                   color:white;
                   font-size:15px;
                   font-weight:bold;">
-                  <span style="color:${color}">
-                    ${isHigh ? "● 満潮" : "● 干潮"}
-                  </span>
-                  <span style="margin-left:12px">
-                    ${p.time}
-                  </span>
-                  <span style="margin-left:10px">
-                    約 ${p.value}
-                  </span>
+                 <span style="color:${color};min-width:75px;display:inline-block">
+  ${isHigh ? "● 満潮" : "● 干潮"}
+</span>
+<span style="margin-left:8px">
+  ${p.time}
+</span>
+<span style="margin-left:10px;color:#ffffff">
+  約 ${p.value}
+</span>
                 </div>
               `;
             }).join("")
