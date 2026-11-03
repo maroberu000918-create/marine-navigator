@@ -533,22 +533,59 @@ document.body.appendChild(moonPanel);
       }
 
       const turningPoints = [];
-      for (let i = 1; i < values.length - 1; i++) {
-        if (values[i] >= values[i - 1] && values[i] > values[i + 1]) {
-          turningPoints.push({
-            type: "満潮ごろ",
-            time: tideTime(i),
-            value: values[i]
-          });
-        } else if (values[i] <= values[i - 1] && values[i] < values[i + 1]) {
-          turningPoints.push({
-            type: "干潮ごろ",
-            time: tideTime(i),
-            value: values[i]
-          });
-        }
-      }
+           // 満潮・干潮を検出（細かな変動を除外）
+      const turningPoints = [];
+      const intervalSeconds = Number(data.interval) || 60;
+      const radius = Math.max(1, Math.round(15 * 60 / intervalSeconds));
 
+      const smoothValues = values.map((v, i) => {
+        const from = Math.max(0, i - radius);
+        const to = Math.min(values.length - 1, i + radius);
+        let sum = 0;
+
+        for (let j = from; j <= to; j++) {
+          sum += values[j];
+        }
+
+        return sum / (to - from + 1);
+      });
+
+      const minGap = Math.max(
+        1,
+        Math.round(3 * 3600 / intervalSeconds)
+      );
+
+      let previousDirection = 0;
+      let lastPointIndex = -minGap;
+
+      for (let i = 1; i < smoothValues.length; i++) {
+        const diff = smoothValues[i] - smoothValues[i - 1];
+
+        const direction =
+          diff > 0.05 ? 1 :
+          diff < -0.05 ? -1 : 0;
+
+        if (direction === 0) continue;
+
+        if (
+          previousDirection !== 0 &&
+          direction !== previousDirection
+        ) {
+          const index = i - 1;
+
+          if (index - lastPointIndex >= minGap) {
+            turningPoints.push({
+              type: previousDirection > 0 ? "満潮ごろ" : "干潮ごろ",
+              time: tideTime(index),
+              value: values[index]
+            });
+
+            lastPointIndex = index;
+          }
+        }
+
+        previousDirection = direction;
+      }
       const width = 320;
       const height = 140;
       const points = values.map((v, i) => {
