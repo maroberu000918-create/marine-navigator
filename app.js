@@ -657,12 +657,20 @@ document.body.appendChild(moonPanel);
         </div>
         <div style="font-weight:bold;margin-top:12px">満潮・干潮の目安</div>
         ${
-          turningPoints.length
-            ? turningPoints.map(p =>
-                `<div style="padding:5px 0;border-bottom:1px solid #456">
-                  ${p.time}　${p.type}　${p.value}
-                </div>`
-              ).join("")
+         turningPoints.length
+            ? turningPoints.map(p => {
+                const isHigh = p.type === "満潮ごろ";
+                return `
+                  <div style="padding:8px;margin-top:5px;
+                    border-radius:6px;
+                    background:${isHigh ? '#512d35' : '#173e58'};
+                    color:${isHigh ? '#ff7777' : '#55c8ff'};
+                    font-weight:bold">
+                    ${isHigh ? '🔴 満潮' : '🔵 干潮'}
+                   　${p.time}　約 ${p.value}
+                  </div>
+                `;
+              }).join("")
             : "<div>この日の変化点を検出できませんでした。</div>"
         }
         <div style="font-size:11px;color:#cbd8e5;margin-top:8px">
