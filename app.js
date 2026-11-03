@@ -665,9 +665,9 @@ document.body.appendChild(moonPanel);
                                 <div style="
                   display:flex;
                   align-items:center;
-                  justify-content:space-between;
-                  gap:8px;
-                  flex-wrap:wrap;">
+                                   justify-content:space-between;
+                  gap:4px;
+                  flex-wrap:nowrap;">
                   <span style="
                     color:${color};
                     font-size:16px;
