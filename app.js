@@ -532,7 +532,7 @@ document.body.appendChild(moonPanel);
           String(d.getMinutes()).padStart(2, "0");
       }
 
-      const turningPoints = [];
+ 
            // 満潮・干潮を検出（細かな変動を除外）
       const turningPoints = [];
       const intervalSeconds = Number(data.interval) || 60;
