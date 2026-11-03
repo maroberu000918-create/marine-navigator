@@ -590,7 +590,9 @@ document.body.appendChild(moonPanel);
           ${currentText}
         </div>
         <div style="margin-top:10px">潮位の変化（1日分）</div>
-                <svg viewBox="0 0 ${width} 175"
+                 <div style="text-align:left;font-weight:bold;color:#ffeb3b;margin-top:5px">
+          潮回り：${tideCategory}
+        </div>       <svg viewBox="0 0 ${width} 175"
           style="width:100%;background:#183d5c;border-radius:7px;margin-top:5px">
           ${[0,6,12,18,24].map(hour => {
             const x = hour / 24 * width;
