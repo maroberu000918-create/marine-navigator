@@ -470,9 +470,14 @@ document.body.appendChild(moonPanel);
 
   tideDateInput.value = tideLocalDate();
 
-  tideButton.onclick = () => {
-    tidePanel.style.display =
-      tidePanel.style.display === "none" ? "block" : "none";
+ tideButton.onclick = () => {
+    const isOpening = tidePanel.style.display === "none";
+
+    tidePanel.style.display = isOpening ? "block" : "none";
+
+    if (isOpening) {
+      tidePanel.querySelector("#tideLoad").click();
+    }
   };
 
   tidePanel.querySelector("#tideClose").onclick = () => {
