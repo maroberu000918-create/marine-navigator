@@ -669,3 +669,23 @@ document.querySelectorAll("button").forEach(function(button) {
     button.style.bottom = "12px";
   }
 });
+// 月齢・潮汐表示を非表示にする
+document.querySelectorAll("button").forEach(button => {
+  const label = button.textContent.trim();
+  if (label.includes("潮位予測") || label.includes("潮汐")) {
+    button.remove();
+  }
+});
+
+document.querySelectorAll("div").forEach(panel => {
+  if (
+    panel.style.position === "fixed" &&
+    (
+      panel.textContent.includes("月齢") ||
+      panel.textContent.includes("月の満ち欠け") ||
+      panel.textContent.includes("潮位予測")
+    )
+  ) {
+    panel.remove();
+  }
+});
