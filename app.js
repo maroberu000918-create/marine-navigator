@@ -662,15 +662,25 @@ document.body.appendChild(moonPanel);
                   color:white;
                   font-size:15px;
                   font-weight:bold;">
-                 <span style="color:${color};min-width:75px;display:inline-block">
-  ${isHigh ? "● 満潮" : "● 干潮"}
-</span>
-<span style="margin-left:8px">
-  ${p.time}
-</span>
-<span style="margin-left:10px;color:#ffffff">
-  約 ${p.value}
-</span>
+                                <div style="
+                  display:flex;
+                  align-items:center;
+                  justify-content:space-between;
+                  gap:8px;
+                  flex-wrap:wrap;">
+                  <span style="
+                    color:${color};
+                    font-size:16px;
+                    min-width:75px;">
+                    ${isHigh ? "🔴 満潮" : "🔵 干潮"}
+                  </span>
+                  <span style="font-size:17px;color:white;">
+                    ${p.time}
+                  </span>
+                  <span style="font-size:17px;color:#ffffff;">
+                    約 ${p.value}
+                  </span>
+                </div>
                 </div>
               `;
             }).join("")
