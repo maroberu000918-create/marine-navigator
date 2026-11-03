@@ -354,25 +354,7 @@ marineAreas.forEach(area => {
 });
 
 document.body.appendChild(areaPanel);
-// 宇和島の公式潮汐情報ボタン
-const tideButton = document.createElement('button');
 
-tideButton.textContent = '潮汐・宇和島';
-
-tideButton.style.cssText =
-  'position:fixed;right:12px;top:62px;z-index:9000;' +
-  'padding:12px 16px;background:#087b65;color:white;' +
-  'border:0;border-radius:8px;font-size:14px;font-weight:bold;' +
-  'box-shadow:0 2px 6px #555;';
-
-tideButton.onclick = () => {
-  window.open(
-    'https://www1.kaiho.mlit.go.jp/TIDE/gauge/gauge.php?s=0134',
-    '_blank'
-  );
-};
-
-document.body.appendChild(tideButton);
 // 月齢・月の満ち欠け表示
 const moonPanel = document.createElement('div');
 
