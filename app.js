@@ -629,11 +629,15 @@ document.body.appendChild(moonPanel);
             const isHigh = p.type === "満潮ごろ";
             const label = (isHigh ? "満潮 " : "干潮 ") +
               p.time + " " + p.value;
-            return `
+                       return `
               <circle cx="${x}" cy="${y}" r="4"
                 fill="${isHigh ? '#ff5252' : '#42bfff'}"
                 stroke="white" stroke-width="1"/>
-              
+              <text x="${x}" y="${isHigh ? y - 9 : y + 16}"
+                fill="${isHigh ? '#ff7777' : '#65cfff'}"
+                font-size="10"
+                text-anchor="middle"
+                font-weight="bold">${p.time}</text>
             `;
           }).join("")}
         </svg>
