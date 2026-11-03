@@ -548,7 +548,26 @@ document.body.appendChild(moonPanel);
 
       const now = new Date();
       const selectedDate = tideDateInput.value;
-      const isToday = selectedDate === tideLocalDate();
+            // 選択日の月齢から潮回りを簡易判定
+      const lunarDate = new Date(selectedDate + "T00:00:00");
+      const referenceNewMoon = Date.UTC(2000, 0, 6, 18, 14);
+      const synodicMonth = 29.530588853;
+      const lunarAge =
+        (((lunarDate.getTime() - referenceNewMoon) /
+          86400000) % synodicMonth + synodicMonth) % synodicMonth;
+
+      const lunarDay = Math.floor(lunarAge) + 1;
+      let tideCategory = "中潮";
+
+      if ([1, 2, 3, 16, 17, 18].includes(lunarDay)) {
+        tideCategory = "大潮";
+      } else if ([7, 8, 9, 22, 23, 24].includes(lunarDay)) {
+        tideCategory = "小潮";
+      } else if ([10, 25].includes(lunarDay)) {
+        tideCategory = "長潮";
+      } else if ([11, 26].includes(lunarDay)) {
+        tideCategory = "若潮";
+      }const isToday = selectedDate === tideLocalDate();
       let currentText = "選択日の現在潮位：対象外の日付です。";
 
       if (isToday) {
